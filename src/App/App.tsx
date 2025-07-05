@@ -1,36 +1,48 @@
-import OrderForm from '../OrderForm/OrderForm';
+import fetchMovies from '../services/movieService';
+import MovieGrid from '../MovieGrid/MovieGrid';
 import { useState } from 'react';
-import ArticleList from '../ArticleList/ArticleList';
-import { Article } from '../article/article';
-import { BarLoader } from 'react-spinners';
-import { fetchArticles } from '../articleService/articleService';
+import { Movie } from '../types/movie';
+import SearchBar from '../SearchBar/SearchBar';
+import Loader from '../Loader/Loader';
+import ErrorMessage from '../ErrorMessage/ErrorMessage';
+import MovieModal from '../MovieModal/MovieModal';
 
 function App() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loader, setLoader] = useState(false);
+  const [article, setArticle] = useState<Movie[]>([]);
+  const [isLoad, setIsLoad] = useState(false);
   const [isError, setIsError] = useState(false);
-  const handleForm = async (topic: string) => {
-    try {
-      setLoader(true);
-      setIsError(false);
-      const data = await fetchArticles(topic);
-      setLoader(false);
-      setArticles(data);
-    } catch (error) {
-      console.log(error);
+  const [isOpenModal, setIsOpenModal] = useState<Movie | null>(null);
+
+  const handleArticle = async (topic: string): Promise<void> => {
+    if (!topic) {
       setIsError(true);
+      setArticle([]);
+      return;
+    }
+    try {
+      setIsLoad(true);
+      setIsError(false);
+      const data: Movie[] = await fetchMovies(topic);
+      setArticle(data);
+      console.log(data);
+      setIsLoad(false);
+    } catch (error) {
+      setIsError(true);
+      console.log(error);
     } finally {
-      setLoader(false);
+      setIsLoad(false);
     }
   };
-  console.log(articles);
+
   return (
     <div>
-      <h1>Place your name</h1>
-      <OrderForm onSubmit={handleForm} />
-      {loader && <BarLoader color="green" />}
-      {isError && <p>Whoops, something went wrong! Please try again!</p>}
-      {articles.length > 0 && <ArticleList items={articles} />}
+      {isOpenModal && (
+        <MovieModal movie={isOpenModal} onClose={() => setIsOpenModal(null)} />
+      )}
+      <SearchBar onSubmit={handleArticle} />
+      {isLoad && <Loader />}
+      {isError && <ErrorMessage />}
+      <MovieGrid onSelect={setIsOpenModal} listMovie={article} />
     </div>
   );
 }
