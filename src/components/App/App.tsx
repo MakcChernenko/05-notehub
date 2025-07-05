@@ -1,4 +1,4 @@
-import fetchMovies from '../services/movieService';
+import fetchMovies from '../../services/movieService';
 import MovieGrid from '../MovieGrid/MovieGrid';
 import { useState } from 'react';
 import { Movie } from '../types/movie';
