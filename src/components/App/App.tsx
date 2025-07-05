@@ -6,44 +6,46 @@ import SearchBar from '../SearchBar/SearchBar';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import MovieModal from '../MovieModal/MovieModal';
+import { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 function App() {
   const [article, setArticle] = useState<Movie[]>([]);
-  const [isLoad, setIsLoad] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState<Movie | null>(null);
 
-  const handleArticle = async (topic: string): Promise<void> => {
-    if (!topic) {
-      setIsError(true);
-      setArticle([]);
+  const handleArticle = async (query: string): Promise<void> => {
+    if (!query.trim()) {
+      toast.error('Please enter your search query');
       return;
     }
+    setIsLoading(true);
+    setIsError(false);
+    setArticle([]);
     try {
-      setIsLoad(true);
-      setIsError(false);
-      const data: Movie[] = await fetchMovies(topic);
+      const data: Movie[] = await fetchMovies(query);
+      if (data.length === 0) {
+        toast.error('No movies found for your request.');
+        return;
+      }
       setArticle(data);
-      console.log(data);
-      setIsLoad(false);
-    } catch (error) {
+    } catch {
       setIsError(true);
-      console.log(error);
     } finally {
-      setIsLoad(false);
+      setIsLoading(false);
     }
   };
-
   return (
     <div>
+      <Toaster position="top-right" />
       {isOpenModal && (
         <MovieModal movie={isOpenModal} onClose={() => setIsOpenModal(null)} />
       )}
       <SearchBar onSubmit={handleArticle} />
-      {isLoad && <Loader />}
+      {isLoading && <Loader />}
       {isError && <ErrorMessage />}
-      <MovieGrid onSelect={setIsOpenModal} listMovie={article} />
-      <p>Текст для коміта</p>
+      <MovieGrid onSelect={setIsOpenModal} movies={article} />
     </div>
   );
 }

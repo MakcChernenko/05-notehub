@@ -1,17 +1,18 @@
 import css from './SearchBar.module.css';
+import toast from 'react-hot-toast';
 
-interface Prop {
+interface SearchBarProps {
   onSubmit: (value: string) => void;
 }
 
-function SearchBar({ onSubmit }: Prop) {
+function SearchBar({ onSubmit }: SearchBarProps) {
   const handleSubmit = (formData: FormData) => {
-    const topic = formData.get('topic') as string;
-    if (topic.trim() === '') {
-      alert('Please enter your search query');
+    const query = formData.get('query') as string;
+    if (query.trim() === '') {
+      toast.error('Please enter your search query');
       return;
     }
-    onSubmit(topic);
+    onSubmit(query);
   };
   return (
     <header className={css.header}>
@@ -22,7 +23,7 @@ function SearchBar({ onSubmit }: Prop) {
             className={css.input}
             type="text"
             placeholder="Search movies..."
-            name="topic"
+            name="query"
           />
           <button className={css.button}>Search</button>
         </form>
