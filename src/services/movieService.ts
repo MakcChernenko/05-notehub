@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Movie } from '../components/types/movie';
+import { Movie } from '../types/movie';
 
 const API_KEY = import.meta.env.VITE_TMDB_TOKEN;
 console.log('TMDB Token:', API_KEY);

@@ -1,5 +1,5 @@
 import css from './MovieGrid.module.css';
-import { Movie } from '../types/movie';
+import { Movie } from '../../types/movie';
 
 interface Props {
   listMovie: Movie[];

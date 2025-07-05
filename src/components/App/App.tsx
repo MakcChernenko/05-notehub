@@ -1,7 +1,7 @@
 import fetchMovies from '../../services/movieService';
 import MovieGrid from '../MovieGrid/MovieGrid';
 import { useState } from 'react';
-import { Movie } from '../types/movie';
+import { Movie } from '../../types/movie';
 import SearchBar from '../SearchBar/SearchBar';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
@@ -43,6 +43,7 @@ function App() {
       {isLoad && <Loader />}
       {isError && <ErrorMessage />}
       <MovieGrid onSelect={setIsOpenModal} listMovie={article} />
+      <p>Текст для коміта</p>
     </div>
   );
 }
