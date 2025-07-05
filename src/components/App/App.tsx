@@ -32,6 +32,7 @@ function App() {
       setArticle(data);
     } catch {
       setIsError(true);
+      toast.error('Something went wrong while fetching movies.');
     } finally {
       setIsLoading(false);
     }
