@@ -10,26 +10,26 @@ import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 
 function App() {
-  const [Movie, setMovie] = useState<Movie[]>([]);
+  const [Movies, setMovies] = useState<Movie[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
-  const [isOpenModal, setIsOpenModal] = useState<Movie | null>(null);
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const handleMovie = async (query: string): Promise<void> => {
+  const handleSearch = async (query: string): Promise<void> => {
     if (!query.trim()) {
       toast.error('Please enter your search query');
       return;
     }
     setIsLoading(true);
     setIsError(false);
-    setMovie([]);
+    setMovies([]);
     try {
       const data: Movie[] = await fetchMovies(query);
       if (data.length === 0) {
         toast.error('No movies found for your request.');
         return;
       }
-      setMovie(data);
+      setMovies(data);
     } catch {
       setIsError(true);
       toast.error('Something went wrong while fetching movies.');
@@ -40,13 +40,16 @@ function App() {
   return (
     <div>
       <Toaster position="top-right" />
-      {isOpenModal && (
-        <MovieModal movie={isOpenModal} onClose={() => setIsOpenModal(null)} />
+      {selectedMovie && (
+        <MovieModal
+          movie={selectedMovie}
+          onClose={() => setSelectedMovie(null)}
+        />
       )}
-      <SearchBar onSubmit={handleMovie} />
+      <SearchBar onSubmit={handleSearch} />
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
-      <MovieGrid onSelect={setIsOpenModal} movies={Movie} />
+      <MovieGrid onSelect={setSelectedMovie} movies={Movies} />
     </div>
   );
 }
