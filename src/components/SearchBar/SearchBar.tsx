@@ -1,6 +1,6 @@
 import css from './SearchBar.module.css';
 import toast from 'react-hot-toast';
-import { useId, FormEvent } from 'react';
+import { useId } from 'react';
 
 interface SearchBarProps {
   onSubmit: (query: string) => void;
@@ -9,10 +9,7 @@ interface SearchBarProps {
 function SearchBar({ onSubmit }: SearchBarProps) {
   const fieldId = useId();
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.currentTarget);
+  const action = (formData: FormData) => {
     const query = (formData.get('query') as string).trim();
 
     if (query.length < 3) {
@@ -21,14 +18,13 @@ function SearchBar({ onSubmit }: SearchBarProps) {
     }
 
     onSubmit(query);
-    event.currentTarget.reset();
   };
 
   return (
     <header className={css.header}>
       <div className={css.container}>
         <a href="https://www.themoviedb.org/">Powered by TMDB</a>
-        <form className={css.form} onSubmit={handleSubmit}>
+        <form className={css.form} action={action}>
           <label htmlFor={fieldId} className={css.visuallyHidden}>
             Search movies
           </label>
@@ -38,6 +34,8 @@ function SearchBar({ onSubmit }: SearchBarProps) {
             type="text"
             placeholder="Search movies..."
             name="query"
+            required
+            minLength={3}
           />
           <button type="submit" className={css.button}>
             Search
