@@ -1,65 +1,48 @@
 import css from './SearchBar.module.css';
 import toast from 'react-hot-toast';
-import { useId } from 'react';
-import * as Yup from 'yup';
-import { Formik, Form, Field, FormikHelpers, ErrorMessage } from 'formik';
+import { useId, FormEvent } from 'react';
 
 interface SearchBarProps {
-  onSubmit: (value: string) => void;
+  onSubmit: (query: string) => void;
 }
-
-interface FormValues {
-  query: string;
-}
-
-const OrderFormSchema = Yup.object().shape({
-  query: Yup.string()
-    .min(3, 'Name must be at least 2 characters')
-    .max(30, 'Name is too long')
-    .required('Name is required'),
-});
 
 function SearchBar({ onSubmit }: SearchBarProps) {
   const fieldId = useId();
 
-  const handleSubmit = (
-    values: FormValues,
-    actions: FormikHelpers<FormValues>
-  ) => {
-    const trimmedQuery = values.query.trim();
-    if (!trimmedQuery) {
-      toast.error('Please enter your search query');
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const query = (formData.get('query') as string).trim();
+
+    if (query.length < 3) {
+      toast.error('Search must be at least 3 characters');
       return;
     }
 
-    onSubmit(trimmedQuery);
-    actions.resetForm();
+    onSubmit(query);
+    event.currentTarget.reset();
   };
 
   return (
     <header className={css.header}>
       <div className={css.container}>
         <a href="https://www.themoviedb.org/">Powered by TMDB</a>
-        <Formik<FormValues>
-          validationSchema={OrderFormSchema}
-          initialValues={{ query: '' }}
-          onSubmit={handleSubmit}
-        >
-          <Form className={css.form}>
-            <label htmlFor={fieldId}></label>
-            <Field
-              id={fieldId}
-              className={css.input}
-              type="text"
-              placeholder="Search movies..."
-              name="query"
-            />
-            <ErrorMessage name="query" component="span" className={css.error} />
-            <button type="submit" className={css.button}>
-              Search
-            </button>
-          </Form>
-        </Formik>
+        <form className={css.form} onSubmit={handleSubmit}>
+          <label htmlFor={fieldId} className={css.visuallyHidden}>
+            Search movies
+          </label>
+          <input
+            id={fieldId}
+            className={css.input}
+            type="text"
+            placeholder="Search movies..."
+            name="query"
+          />
+          <button type="submit" className={css.button}>
+            Search
+          </button>
+        </form>
       </div>
     </header>
   );

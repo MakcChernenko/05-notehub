@@ -1,6 +1,6 @@
 import fetchMovies from '../../services/movieService';
 import MovieGrid from '../MovieGrid/MovieGrid';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Movie } from '../../types/movie';
 import SearchBar from '../SearchBar/SearchBar';
 import Loader from '../Loader/Loader';
@@ -17,12 +17,27 @@ function App() {
   const [movieName, setMovieName] = useState<string>('');
   const [page, setPage] = useState<number>(1);
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, isSuccess } = useQuery({
     queryKey: ['movies', movieName, page],
     queryFn: () => fetchMovies(movieName, page),
     enabled: movieName !== '',
     placeholderData: keepPreviousData,
   });
+
+  const handleSearch = (name: string) => {
+    if (!name.trim()) {
+      toast.error('Please enter your search query');
+      return;
+    }
+    setMovieName(name);
+    setPage(1);
+  };
+
+  useEffect(() => {
+    if (isSuccess && data?.results.length === 0) {
+      toast.error('No movies found');
+    }
+  }, [isSuccess, data]);
 
   const totalPages = data?.total_pages ?? 0;
 
@@ -35,15 +50,8 @@ function App() {
           onClose={() => setSelectedMovie(null)}
         />
       )}
-      <SearchBar
-        onSubmit={name => {
-          if (!name.trim()) {
-            toast.error('Please enter your search query');
-            return;
-          }
-          setMovieName(name);
-        }}
-      />
+      <SearchBar onSubmit={handleSearch} />
+
       {data?.total_pages && data.total_pages > 1 && (
         <ReactPaginate
           pageCount={totalPages}
@@ -57,6 +65,7 @@ function App() {
           previousLabel="←"
         />
       )}
+
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
       <MovieGrid onSelect={setSelectedMovie} movies={data?.results || []} />
