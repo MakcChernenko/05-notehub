@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 
 import { fetchNotes } from '../../services/noteService';
-import { FetchNotesResponse } from '../../types/note';
+import { FetchNotesResponse } from '../../services/noteService';
 
 import SearchBox from '../SearchBox/SearchBox';
 import NoteList from '../NoteList/NoteList';
@@ -23,6 +23,11 @@ const App = () => {
 
   const queryClient = useQueryClient();
 
+  const handleSearchChange = (newTerm: string) => {
+    setSearchTerm(newTerm);
+    setPage(1);
+  };
+
   const { data, isLoading, isError } = useQuery<FetchNotesResponse>({
     queryKey: ['notes', page, debouncedSearchTerm],
     queryFn: () =>
@@ -37,7 +42,7 @@ const App = () => {
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
-        <SearchBox value={searchTerm} onChange={setSearchTerm} />
+        <SearchBox value={searchTerm} onChange={handleSearchChange} />
         {data?.totalPages && data.totalPages > 1 && (
           <Pagination
             page={page}
@@ -61,7 +66,7 @@ const App = () => {
           <Modal onClose={handleCloseModal}>
             <NoteForm onSuccess={handleCloseModal} />
           </Modal>,
-          document.body
+          document.getElementById('modal-root') as HTMLElement
         )}
     </div>
   );

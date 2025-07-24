@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Note, NewNote, FetchNotesResponse } from '../types/note';
+import { Note, NewNote } from '../types/note';
 
 const API_TOKEN = import.meta.env.VITE_NOTEHUB_TOKEN;
 
@@ -12,6 +12,11 @@ interface FetchNotesParams {
   search?: string;
 }
 
+export interface FetchNotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
+
 export const fetchNotes = async (
   params: FetchNotesParams
 ): Promise<FetchNotesResponse> => {
@@ -22,7 +27,6 @@ export const fetchNotes = async (
       page,
       perPage,
       ...(search ? { search } : {}),
-      
     },
   });
 
